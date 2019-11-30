@@ -13,6 +13,7 @@ const zipTask = taskFactory.zip(['dist/unpacked/**'], 'extension.zip', 'dist');
 const submoduleTaskDefinitions = [
   './src/gulptasks',
   './src/injected/gulptasks',
+  './src/options/gulptasks',
   './src/background/gulptasks',
 ];
 for (const submoduleTaskDefinition of submoduleTaskDefinitions) {

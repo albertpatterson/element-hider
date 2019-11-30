@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "medium-helper",
+  "name": "element-hider",
   "version": "1.0.0",
-  "description": "a helper to improve medium.com",
+  "description": "an extension to hide elements",
   "browser_action": {
-    "default_title": "Medium Helper",
+    "default_title": "Element Hider",
     "default_icon": "icon.png"
   },
   "background": {
@@ -25,8 +25,13 @@
       ]
     }
   ],
-  "homepage_url": "https://github.com/albertpatterson/medium-helper",
+  "homepage_url": "https://github.com/albertpatterson/element-hider",
   "permissions": [
-    "tabs"
-  ]
+    "tabs",
+    "storage"
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
 }
