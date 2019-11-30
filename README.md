@@ -1,6 +1,6 @@
-# Medium Helper
-a browser extension for improving medium<br>
-[![Build Status](https://travis-ci.com/albertpatterson/medium-helper.svg?branch=master)](https://travis-ci.com/albertpatterson/medium-helper)
+# Element Hider
+a browser extension for hiding elements<br>
+[![Build Status](https://travis-ci.com/albertpatterson/element-hider.svg?branch=master)](https://travis-ci.com/albertpatterson/element-hider)
 
 ## Usage
 ### Develop Locally:
@@ -19,9 +19,9 @@ a browser extension for improving medium<br>
       2) click "Load Temporary Add-on"
       3) open the extension's directory and select any file inside the extension.
 
-### Install from the Chrome Web Store: https://chrome.google.com/webstore/detail/medium-helper/kajnoobkhdepeaphgdnikmpdlikfgdjl
+### Install from the Chrome Web Store: TODO
 
-### Install as Firefox Add-on: https://addons.mozilla.org/en-US/firefox/addon/albert-e-patterson/
+### Install as Firefox Add-on: TODO
 
 ## License
 This project is licensed under the MIT License - see the [license](LICENSE) file for details
