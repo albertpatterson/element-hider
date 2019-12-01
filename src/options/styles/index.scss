@@ -1,3 +1,37 @@
-body{
-  background: rgb(128, 127, 127);
+#element-hider-list{
+  width: 90%;
+  margin: 0 5%;
+}
+
+#element-hider-list-domain-header{
+  width: 45%
+}
+
+#element-hider-list-selector-header{
+  width: 45%
+}
+
+#element-hider-list-button-header {
+ width: 10%
+}
+
+.element-hider-item-domain {
+  width: 100%
+}
+.element-hider-item-selector {
+  width: 100%
+}
+
+.element-hider-list-row {
+  td {
+    padding: 0 5px;
+  }
+
+  .element-hider-list-input-cell{
+    text-align: center;
+  }
+
+  .element-hider-list-button-cell{
+    text-align: left;
+  }
 }
