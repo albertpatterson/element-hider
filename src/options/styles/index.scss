@@ -4,11 +4,15 @@
 }
 
 #element-hider-list-domain-header{
-  width: 45%
+  width: 30%
 }
 
 #element-hider-list-selector-header{
-  width: 45%
+  width: 30%
+}
+
+#element-hider-list-regexp-header{
+  width: 30%
 }
 
 #element-hider-list-button-header {
@@ -19,6 +23,10 @@
   width: 100%
 }
 .element-hider-item-selector {
+  width: 100%
+}
+
+.element-hider-item-regexp {
   width: 100%
 }
 

@@ -56,41 +56,54 @@ function createElementHiderItem(item = {} as IElementHiderItem):
   const {inputCell: selectorCell, input: selectorInput} =
       createElementHiderListInputCell(
           'element-hider-item-selector', 'input', item.selector);
+  const {inputCell: regexpCell, input: regexpInput} =
+      createElementHiderListInputCell(
+          'element-hider-item-regexp', 'input', item.regexp);
 
   const {buttonCell, button, buttonText} = createElementHiderListButtonCell();
 
   itemRow.appendChild(domainCell);
   itemRow.appendChild(selectorCell);
+  itemRow.appendChild(regexpCell);
   itemRow.appendChild(buttonCell);
 
   const removeItemHandler = (event: Event) => {
     const domain = domainInput.value;
     const selector = selectorInput.value;
-    // tslint:disable-next-line: no-console
-    console.log('remove', domain, selector);
+    const regexp = regexpInput.value;
+
+    removeElementHiderItemFromSettings({domain, selector, regexp});
+
     button.removeEventListener('click', removeItemHandler);
-    removeElementHiderItemFromSettings({domain, selector});
     itemRow.parentElement!.removeChild(itemRow);
   };
 
   const addItemHandler = (event: Event) => {
     const domain = domainInput.value;
     const selector = selectorInput.value;
-    // tslint:disable-next-line: no-console
-    console.log('add', domain, selector);
+    const regexp = regexpInput.value;
+
+    addElementHiderItemToSettings({domain, selector, regexp});
 
     button.removeEventListener('click', addItemHandler);
     button.addEventListener('click', removeItemHandler);
+
+    domainInput.disabled = true;
+    selectorInput.disabled = true;
+    regexpInput.disabled = true;
     buttonText.innerText = '-';
-    addElementHiderItemToSettings({domain, selector});
+
     addElementHiderItem();
   };
 
   if (isSettingValid(item)) {
+    domainInput.disabled = true;
+    selectorInput.disabled = true;
+    regexpInput.disabled = true;
     buttonText.innerText = '-';
     button.addEventListener('click', removeItemHandler);
   } else {
-    button.disabled = false;
+    button.disabled = true;
     itemRow.addEventListener('input', (event: Event) => {
       const domain = domainInput.value;
       const selector = selectorInput.value;
@@ -106,6 +119,7 @@ function createElementHiderItem(item = {} as IElementHiderItem):
 interface IElementHiderItem {
   domain?: string;
   selector?: string;
+  regexp?: string;
 }
 
 function showElementHiderList(list: IElementHiderItem[]) {
@@ -146,7 +160,8 @@ function removeElementHiderItemFromSettings(removeItem: IElementHiderItem) {
     const filtered = list.filter(
         (item: IElementHiderItem) =>
             !(item.domain === removeItem.domain &&
-              item.selector === removeItem.selector));
+              item.selector === removeItem.selector &&
+              item.regexp === removeItem.regexp));
 
     chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: filtered});
   });
@@ -154,4 +169,5 @@ function removeElementHiderItemFromSettings(removeItem: IElementHiderItem) {
 
 if (window.chrome) {
   getElementHiderListFromSettings(showElementHiderList);
+  // chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: []});
 }
