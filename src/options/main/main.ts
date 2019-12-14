@@ -3,6 +3,11 @@ import {clearElementHiderItemSettings, getElementHiderListFromSettings} from '..
 import {showElementHiderList} from './view';
 
 if (window.chrome) {
-  // clearElementHiderItemSettings();
   getElementHiderListFromSettings(showElementHiderList);
+}
+
+const clearAllButton = document.getElementById('clear-all');
+if (clearAllButton) {
+  clearAllButton.addEventListener(
+      'click', () => clearElementHiderItemSettings());
 }

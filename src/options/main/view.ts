@@ -46,6 +46,75 @@ export function createElementHiderListButtonCell() {
   return {buttonCell, button, buttonText};
 }
 
+function createUpdateActiveHandler(
+    urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
+    regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement) {
+  return () => {
+    const urlPrefix = urlPrefixInput.value;
+    const selector = selectorInput.value;
+    const regExpSrc = regExpSrcInput.value;
+    const checked = activeCheckbox.checked;
+
+    const oldIdentifier = {
+      regExpSrc,
+      selector,
+      urlPrefix,
+    };
+    const newSetting = {
+      active: checked,
+      identifier: oldIdentifier,
+    };
+
+    storage.updateElementHiderItemToSettings(newSetting, newSetting);
+  };
+}
+
+function createRemoveItemHandler(
+    urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
+    regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement,
+    button: HTMLButtonElement, itemRow: HTMLTableRowElement) {
+  const handler = () => {
+    const urlPrefix = urlPrefixInput.value;
+    const selector = selectorInput.value;
+    const regExpSrc = regExpSrcInput.value;
+
+    storage.removeElementHiderItemFromSettings(
+        {urlPrefix, selector, regExpSrc});
+
+    button.removeEventListener('click', handler);
+    itemRow.parentElement!.removeChild(itemRow);
+  };
+
+  return handler;
+}
+
+function createAddItemHandler(
+    urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
+    regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement,
+    button: HTMLButtonElement, buttonText: HTMLElement,
+    itemRow: HTMLTableRowElement, removeItemHandler: () => void) {
+  const handle = () => {
+    const urlPrefix = urlPrefixInput.value;
+    const selector = selectorInput.value;
+    const regExpSrc = regExpSrcInput.value;
+    const active = activeCheckbox.checked;
+
+    storage.addElementHiderItemToSettings(
+        {identifier: {urlPrefix, selector, regExpSrc}, active});
+
+    button.removeEventListener('click', handle);
+    button.addEventListener('click', removeItemHandler);
+
+    urlPrefixInput.disabled = true;
+    selectorInput.disabled = true;
+    regExpSrcInput.disabled = true;
+    buttonText.innerText = '-';
+
+    addElementIdentifierSettingItem();
+  };
+  return handle;
+}
+
 export function createElementIdentifierSettingItem(
     setting = {} as IElementIdentierSetting): HTMLTableRowElement {
   const identifier = setting.identifier || {} as IElementIdentifier;
@@ -60,74 +129,38 @@ export function createElementIdentifierSettingItem(
       createElementIdentifierInputCell(
           'element-hider-item-selector', 'input', identifier.selector);
 
-  const regexpSting = identifier.regExpSrc;
-  // tslint:disable-next-line: no-console
-  console.log('identifier', identifier);
-  // tslint:disable-next-line: no-console
-  console.log('identifier.regexp', identifier.regExpSrc);
-  // tslint:disable-next-line: no-console
-  console.log('regexpSting', regexpSting);
-  const {inputCell: regexpCell, input: regexpInput} =
+  const {inputCell: regExpSrcCell, input: regExpSrcInput} =
       createElementIdentifierInputCell(
-          'element-hider-item-regexp', 'input', regexpSting);
+          'element-hider-item-regexp', 'input', identifier.regExpSrc);
+
   const {inputCell: activeCell, input: activeCheckbox} =
       createElementIdentifierInputCell('element-hider-item-regexp', 'checkbox');
   activeCheckbox.checked = setting.active !== false;
+  activeCheckbox.addEventListener(
+      'change',
+      createUpdateActiveHandler(
+          urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox));
 
   const {buttonCell, button, buttonText} = createElementHiderListButtonCell();
 
   itemRow.appendChild(domainCell);
   itemRow.appendChild(selectorCell);
-  itemRow.appendChild(regexpCell);
+  itemRow.appendChild(regExpSrcCell);
   itemRow.appendChild(activeCell);
   itemRow.appendChild(buttonCell);
 
-  const toggleActiveHandler = (event: Event) => {
-    const urlPrefix = urlPrefixInput.value;
-    const selector = selectorInput.value;
-    const regexp = regexpInput.value;
-    const checked = activeCheckbox.checked;
+  const removeItemHandler = createRemoveItemHandler(
+      urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox, button,
+      itemRow);
 
-    // storage.toggleSettingActive({urlPrefix, selector, regexp}, checked);
-  };
-  activeCheckbox.addEventListener('changed', toggleActiveHandler);
-
-  const removeItemHandler = (event: Event) => {
-    const urlPrefix = urlPrefixInput.value;
-    const selector = selectorInput.value;
-    const regexp = regexpInput.value;
-
-    storage.removeElementHiderItemFromSettings(
-        {urlPrefix, selector, regExpSrc: regexp});
-
-    button.removeEventListener('click', removeItemHandler);
-    itemRow.parentElement!.removeChild(itemRow);
-  };
-
-  const addItemHandler = (event: Event) => {
-    const urlPrefix = urlPrefixInput.value;
-    const selector = selectorInput.value;
-    const regexp = regexpInput.value;
-    const active = activeCheckbox.checked;
-
-    storage.addElementHiderItemToSettings(
-        {identifier: {urlPrefix, selector, regExpSrc: regexp}, active});
-
-    button.removeEventListener('click', addItemHandler);
-    button.addEventListener('click', removeItemHandler);
-
-    urlPrefixInput.disabled = true;
-    selectorInput.disabled = true;
-    regexpInput.disabled = true;
-    buttonText.innerText = '-';
-
-    addElementIdentifierSettingItem();
-  };
+  const addItemHandler = createAddItemHandler(
+      urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox, button,
+      buttonText, itemRow, removeItemHandler);
 
   if (utils.isSettingValid(identifier)) {
     urlPrefixInput.disabled = true;
     selectorInput.disabled = true;
-    regexpInput.disabled = true;
+    regExpSrcInput.disabled = true;
     buttonText.innerText = '-';
     button.addEventListener('click', removeItemHandler);
   } else {

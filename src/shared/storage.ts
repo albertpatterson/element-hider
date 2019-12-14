@@ -13,14 +13,18 @@ export function getElementHiderListFromSettings(
   );
 }
 
-export function addElementHiderItemToSettings(item: IElementIdentierSetting) {
+export function addElementHiderItemToSettings(
+    item: IElementIdentierSetting, callback?: () => void) {
   getElementHiderListFromSettings((list: IElementIdentierSetting[]) => {
-    chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: [...list, item]});
+    chrome.storage.sync.set(
+        {[ELEMENT_HIDER_LIST_KEY]: [...list, item]},
+        callback,
+    );
   });
 }
 
 export function removeElementHiderItemFromSettings(
-    removeItem: IElementIdentifier) {
+    removeItem: IElementIdentifier, callback?: () => void) {
   getElementHiderListFromSettings((list: IElementIdentierSetting[]) => {
     const filtered = list.filter(
         (item: IElementIdentierSetting) =>
@@ -28,10 +32,18 @@ export function removeElementHiderItemFromSettings(
               item.identifier.selector === removeItem.selector &&
               item.identifier.regExpSrc === removeItem.regExpSrc));
 
-    chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: filtered});
+    chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: filtered}, callback);
   });
 }
 
-export function clearElementHiderItemSettings() {
-  chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: []});
+export function clearElementHiderItemSettings(callback?: () => void) {
+  chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: []}, callback);
+}
+
+export function updateElementHiderItemToSettings(
+    oldSetting: IElementIdentierSetting, newSetting: IElementIdentierSetting,
+    callback?: () => void) {
+  removeElementHiderItemFromSettings(
+      oldSetting.identifier,
+      () => addElementHiderItemToSettings(newSetting, callback));
 }
