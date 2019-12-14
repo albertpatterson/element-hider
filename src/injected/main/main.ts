@@ -1,13 +1,15 @@
+// import {getElementHiderListFromSettings} from '../../shared/storage';
+
 import * as mediumUtils from './utils';
 
-document.addEventListener('load', removeAllEditorPics);
+document.addEventListener('load', hideAllMatches);
 
-const removeAllEditorPicsThrottled: () => void =
-    mediumUtils.throttle(removeAllEditorPics, 250);
-document.addEventListener('scroll', removeAllEditorPicsThrottled);
+const hideAllMatchesThrottled: () => void =
+    mediumUtils.throttle(hideAllMatches, 250);
+document.addEventListener('scroll', hideAllMatchesThrottled);
 
-function removeAllEditorPics() {
-  mediumUtils.getArticles()
-      .filter(mediumUtils.isEditorsPick)
-      .forEach(mediumUtils.removeArticle);
+function hideAllMatches() {
+  //   mediumUtils.getArticles()
+  //       .filter(mediumUtils.isEditorsPick)
+  //       .forEach(mediumUtils.hideArticle);
 }

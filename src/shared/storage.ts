@@ -26,8 +26,12 @@ export function removeElementHiderItemFromSettings(
         (item: IElementIdentierSetting) =>
             !(item.identifier.urlPrefix === removeItem.urlPrefix &&
               item.identifier.selector === removeItem.selector &&
-              item.identifier.regexp === removeItem.regexp));
+              item.identifier.regExpSrc === removeItem.regExpSrc));
 
     chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: filtered});
   });
+}
+
+export function clearElementHiderItemSettings() {
+  chrome.storage.sync.set({[ELEMENT_HIDER_LIST_KEY]: []});
 }

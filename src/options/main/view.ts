@@ -1,5 +1,5 @@
-import * as storage from './storage';
-import {IElementHiderItem} from './types';
+import * as storage from '../../shared/storage';
+import {IElementIdentierSetting, IElementIdentifier} from '../../shared/types';
 import * as utils from './utils';
 
 const ELEMENT_HIDER_LIST_TBODY_ID = 'element-hider-list-body';
@@ -7,11 +7,13 @@ const ELEMENT_HIDER_LIST_TBODY_ID = 'element-hider-list-body';
 const ELEMENT_HIDER_LIST_TBODY =
     document.getElementById(ELEMENT_HIDER_LIST_TBODY_ID)!;
 
-export function addElementHiderItem(item = {} as IElementHiderItem) {
-  ELEMENT_HIDER_LIST_TBODY.appendChild(createElementHiderItem(item));
+export function addElementIdentifierSettingItem(
+    item = {} as IElementIdentierSetting) {
+  ELEMENT_HIDER_LIST_TBODY.appendChild(
+      createElementIdentifierSettingItem(item));
 }
 
-export function createElementHiderListInputCell(
+export function createElementIdentifierInputCell(
     inputClassName = '', inputType = 'text', value?: string) {
   const inputCell = document.createElement('td');
   inputCell.className = 'element-hider-list-input-cell';
@@ -44,59 +46,86 @@ export function createElementHiderListButtonCell() {
   return {buttonCell, button, buttonText};
 }
 
-export function createElementHiderItem(item = {} as IElementHiderItem):
-    HTMLTableRowElement {
+export function createElementIdentifierSettingItem(
+    setting = {} as IElementIdentierSetting): HTMLTableRowElement {
+  const identifier = setting.identifier || {} as IElementIdentifier;
+
   const itemRow = document.createElement('tr');
   itemRow.className = 'element-hider-list-row';
 
-  const {inputCell: domainCell, input: domainInput} =
-      createElementHiderListInputCell(
-          'element-hider-item-domain', 'input', item.domain);
+  const {inputCell: domainCell, input: urlPrefixInput} =
+      createElementIdentifierInputCell(
+          'element-hider-item-domain', 'input', identifier.urlPrefix);
   const {inputCell: selectorCell, input: selectorInput} =
-      createElementHiderListInputCell(
-          'element-hider-item-selector', 'input', item.selector);
+      createElementIdentifierInputCell(
+          'element-hider-item-selector', 'input', identifier.selector);
+
+  const regexpSting = identifier.regExpSrc;
+  // tslint:disable-next-line: no-console
+  console.log('identifier', identifier);
+  // tslint:disable-next-line: no-console
+  console.log('identifier.regexp', identifier.regExpSrc);
+  // tslint:disable-next-line: no-console
+  console.log('regexpSting', regexpSting);
   const {inputCell: regexpCell, input: regexpInput} =
-      createElementHiderListInputCell(
-          'element-hider-item-regexp', 'input', item.regexp);
+      createElementIdentifierInputCell(
+          'element-hider-item-regexp', 'input', regexpSting);
+  const {inputCell: activeCell, input: activeCheckbox} =
+      createElementIdentifierInputCell('element-hider-item-regexp', 'checkbox');
+  activeCheckbox.checked = setting.active !== false;
 
   const {buttonCell, button, buttonText} = createElementHiderListButtonCell();
 
   itemRow.appendChild(domainCell);
   itemRow.appendChild(selectorCell);
   itemRow.appendChild(regexpCell);
+  itemRow.appendChild(activeCell);
   itemRow.appendChild(buttonCell);
 
+  const toggleActiveHandler = (event: Event) => {
+    const urlPrefix = urlPrefixInput.value;
+    const selector = selectorInput.value;
+    const regexp = regexpInput.value;
+    const checked = activeCheckbox.checked;
+
+    // storage.toggleSettingActive({urlPrefix, selector, regexp}, checked);
+  };
+  activeCheckbox.addEventListener('changed', toggleActiveHandler);
+
   const removeItemHandler = (event: Event) => {
-    const domain = domainInput.value;
+    const urlPrefix = urlPrefixInput.value;
     const selector = selectorInput.value;
     const regexp = regexpInput.value;
 
-    storage.removeElementHiderItemFromSettings({domain, selector, regexp});
+    storage.removeElementHiderItemFromSettings(
+        {urlPrefix, selector, regExpSrc: regexp});
 
     button.removeEventListener('click', removeItemHandler);
     itemRow.parentElement!.removeChild(itemRow);
   };
 
   const addItemHandler = (event: Event) => {
-    const domain = domainInput.value;
+    const urlPrefix = urlPrefixInput.value;
     const selector = selectorInput.value;
     const regexp = regexpInput.value;
+    const active = activeCheckbox.checked;
 
-    storage.addElementHiderItemToSettings({domain, selector, regexp});
+    storage.addElementHiderItemToSettings(
+        {identifier: {urlPrefix, selector, regExpSrc: regexp}, active});
 
     button.removeEventListener('click', addItemHandler);
     button.addEventListener('click', removeItemHandler);
 
-    domainInput.disabled = true;
+    urlPrefixInput.disabled = true;
     selectorInput.disabled = true;
     regexpInput.disabled = true;
     buttonText.innerText = '-';
 
-    addElementHiderItem();
+    addElementIdentifierSettingItem();
   };
 
-  if (utils.isSettingValid(item)) {
-    domainInput.disabled = true;
+  if (utils.isSettingValid(identifier)) {
+    urlPrefixInput.disabled = true;
     selectorInput.disabled = true;
     regexpInput.disabled = true;
     buttonText.innerText = '-';
@@ -104,9 +133,9 @@ export function createElementHiderItem(item = {} as IElementHiderItem):
   } else {
     button.disabled = true;
     itemRow.addEventListener('input', (event: Event) => {
-      const domain = domainInput.value;
+      const urlPrefix = urlPrefixInput.value;
       const selector = selectorInput.value;
-      button.disabled = !utils.isSettingValid({domain, selector});
+      button.disabled = !utils.isSettingValid({urlPrefix, selector});
     });
 
     button.addEventListener('click', addItemHandler);
@@ -115,14 +144,15 @@ export function createElementHiderItem(item = {} as IElementHiderItem):
   return itemRow;
 }
 
-export function showElementHiderList(list: IElementHiderItem[]) {
+export function showElementHiderList(
+    elementIdentifierSettings: IElementIdentierSetting[]) {
   while (ELEMENT_HIDER_LIST_TBODY.firstChild) {
     ELEMENT_HIDER_LIST_TBODY.removeChild(ELEMENT_HIDER_LIST_TBODY.firstChild);
   }
 
-  for (const item of list) {
-    addElementHiderItem(item);
+  for (const item of elementIdentifierSettings) {
+    addElementIdentifierSettingItem(item);
   }
 
-  addElementHiderItem();
+  addElementIdentifierSettingItem();
 }
