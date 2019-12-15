@@ -1,16 +1,22 @@
-import * as storage from '../../shared/storage';
+// import * as storage from '../../shared/storage';
+import {Storage} from '../../shared/storage';
 import {IElementIdentierSetting, IElementIdentifier} from '../../shared/types';
 import * as utils from './utils';
 
-const ELEMENT_HIDER_LIST_TBODY_ID = 'element-hider-list-body';
-
-const ELEMENT_HIDER_LIST_TBODY =
-    document.getElementById(ELEMENT_HIDER_LIST_TBODY_ID)!;
+export const ELEMENT_HIDER_LIST_TBODY_ID = 'element-hider-list-body';
+export const ELEMENT_HIDER_LIST_ROW_CLASS = 'element-hider-list-row';
+export const ELEMENT_HIDER_LIST_URL_PREFIX_CLASS = 'element-hider-item-domain';
+export const ELEMENT_HIDER_LIST_SELECTOR_CLASS = 'element-hider-item-selector';
+export const ELEMENT_HIDER_LIST_REG_EXP_SRC_CLASS = 'element-hider-item-regexp';
+export const ELEMENT_HIDER_LIST_ACTIVE_CLASS = 'element-hider-item-active';
+export const ELEMENT_HIDER_LIST_BUTTON_CLASS = 'element-hider-list-button';
+export const ELEMENT_HIDER_LIST_BUTTON_TEXT_CLASS =
+    'element-hider-list-button-text';
 
 export function addElementIdentifierSettingItem(
+    tbody: HTMLTableSectionElement, storage: Storage,
     item = {} as IElementIdentierSetting) {
-  ELEMENT_HIDER_LIST_TBODY.appendChild(
-      createElementIdentifierSettingItem(item));
+  tbody.appendChild(createElementIdentifierSettingItem(tbody, storage, item));
 }
 
 export function createElementIdentifierInputCell(
@@ -35,11 +41,11 @@ export function createElementHiderListButtonCell() {
   buttonCell.className = 'element-hider-list-button-cell';
 
   const button = document.createElement('button');
-  button.className = 'element-hider-list-button';
+  button.className = ELEMENT_HIDER_LIST_BUTTON_CLASS;
   buttonCell.appendChild(button);
 
   const buttonText = document.createElement('span');
-  buttonText.className = 'element-hider-list-button-text';
+  buttonText.className = ELEMENT_HIDER_LIST_BUTTON_TEXT_CLASS;
   buttonText.innerText = '+';
   button.appendChild(buttonText);
 
@@ -47,8 +53,9 @@ export function createElementHiderListButtonCell() {
 }
 
 function createUpdateActiveHandler(
-    urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
-    regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement) {
+    storage: Storage, urlPrefixInput: HTMLInputElement,
+    selectorInput: HTMLInputElement, regExpSrcInput: HTMLInputElement,
+    activeCheckbox: HTMLInputElement) {
   return () => {
     const urlPrefix = urlPrefixInput.value;
     const selector = selectorInput.value;
@@ -70,9 +77,10 @@ function createUpdateActiveHandler(
 }
 
 function createRemoveItemHandler(
-    urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
-    regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement,
-    button: HTMLButtonElement, itemRow: HTMLTableRowElement) {
+    storage: Storage, urlPrefixInput: HTMLInputElement,
+    selectorInput: HTMLInputElement, regExpSrcInput: HTMLInputElement,
+    activeCheckbox: HTMLInputElement, button: HTMLButtonElement,
+    itemRow: HTMLTableRowElement) {
   const handler = () => {
     const urlPrefix = urlPrefixInput.value;
     const selector = selectorInput.value;
@@ -89,6 +97,7 @@ function createRemoveItemHandler(
 }
 
 function createAddItemHandler(
+    storage: Storage, tbody: HTMLTableSectionElement,
     urlPrefixInput: HTMLInputElement, selectorInput: HTMLInputElement,
     regExpSrcInput: HTMLInputElement, activeCheckbox: HTMLInputElement,
     button: HTMLButtonElement, buttonText: HTMLElement,
@@ -110,36 +119,39 @@ function createAddItemHandler(
     regExpSrcInput.disabled = true;
     buttonText.innerText = '-';
 
-    addElementIdentifierSettingItem();
+    addElementIdentifierSettingItem(tbody, storage);
   };
   return handle;
 }
 
 export function createElementIdentifierSettingItem(
+    tbody: HTMLTableSectionElement, storage: Storage,
     setting = {} as IElementIdentierSetting): HTMLTableRowElement {
   const identifier = setting.identifier || {} as IElementIdentifier;
 
   const itemRow = document.createElement('tr');
-  itemRow.className = 'element-hider-list-row';
+  itemRow.className = ELEMENT_HIDER_LIST_ROW_CLASS;
 
   const {inputCell: domainCell, input: urlPrefixInput} =
       createElementIdentifierInputCell(
-          'element-hider-item-domain', 'input', identifier.urlPrefix);
+          ELEMENT_HIDER_LIST_URL_PREFIX_CLASS, 'input', identifier.urlPrefix);
   const {inputCell: selectorCell, input: selectorInput} =
       createElementIdentifierInputCell(
-          'element-hider-item-selector', 'input', identifier.selector);
+          ELEMENT_HIDER_LIST_SELECTOR_CLASS, 'input', identifier.selector);
 
   const {inputCell: regExpSrcCell, input: regExpSrcInput} =
       createElementIdentifierInputCell(
-          'element-hider-item-regexp', 'input', identifier.regExpSrc);
+          ELEMENT_HIDER_LIST_REG_EXP_SRC_CLASS, 'input', identifier.regExpSrc);
 
   const {inputCell: activeCell, input: activeCheckbox} =
-      createElementIdentifierInputCell('element-hider-item-regexp', 'checkbox');
+      createElementIdentifierInputCell(
+          ELEMENT_HIDER_LIST_ACTIVE_CLASS, 'checkbox');
   activeCheckbox.checked = setting.active !== false;
   activeCheckbox.addEventListener(
       'change',
       createUpdateActiveHandler(
-          urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox));
+          storage, urlPrefixInput, selectorInput, regExpSrcInput,
+          activeCheckbox));
 
   const {buttonCell, button, buttonText} = createElementHiderListButtonCell();
 
@@ -150,12 +162,12 @@ export function createElementIdentifierSettingItem(
   itemRow.appendChild(buttonCell);
 
   const removeItemHandler = createRemoveItemHandler(
-      urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox, button,
-      itemRow);
+      storage, urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox,
+      button, itemRow);
 
   const addItemHandler = createAddItemHandler(
-      urlPrefixInput, selectorInput, regExpSrcInput, activeCheckbox, button,
-      buttonText, itemRow, removeItemHandler);
+      storage, tbody, urlPrefixInput, selectorInput, regExpSrcInput,
+      activeCheckbox, button, buttonText, itemRow, removeItemHandler);
 
   if (utils.isSettingValid(identifier)) {
     urlPrefixInput.disabled = true;
@@ -178,14 +190,15 @@ export function createElementIdentifierSettingItem(
 }
 
 export function showElementHiderList(
+    tbody: HTMLTableSectionElement, storage: Storage,
     elementIdentifierSettings: IElementIdentierSetting[]) {
-  while (ELEMENT_HIDER_LIST_TBODY.firstChild) {
-    ELEMENT_HIDER_LIST_TBODY.removeChild(ELEMENT_HIDER_LIST_TBODY.firstChild);
+  while (tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild);
   }
 
   for (const item of elementIdentifierSettings) {
-    addElementIdentifierSettingItem(item);
+    addElementIdentifierSettingItem(tbody, storage, item);
   }
 
-  addElementIdentifierSettingItem();
+  addElementIdentifierSettingItem(tbody, storage);
 }

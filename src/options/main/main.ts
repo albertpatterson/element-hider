@@ -1,13 +1,16 @@
-import {clearElementHiderItemSettings, getElementHiderListFromSettings} from '../../shared/storage';
+import {storage} from '../../shared/storage';
 
-import {showElementHiderList} from './view';
+import {ELEMENT_HIDER_LIST_TBODY_ID, showElementHiderList} from './view';
 
 if (window.chrome) {
-  getElementHiderListFromSettings(showElementHiderList);
+  const tbody = document.getElementById(ELEMENT_HIDER_LIST_TBODY_ID)! as
+      HTMLTableSectionElement;
+  storage.getElementHiderListFromSettings(
+      (settings) => showElementHiderList(tbody, storage, settings));
 }
 
 const clearAllButton = document.getElementById('clear-all');
 if (clearAllButton) {
   clearAllButton.addEventListener(
-      'click', () => clearElementHiderItemSettings());
+      'click', () => storage.clearElementHiderItemSettings());
 }
