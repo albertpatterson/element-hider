@@ -12,6 +12,8 @@ describe('Options View: ', () => {
   let storage: Storage;
   let addElementHiderItemToSettingsCalls: IElementIdentierSetting[];
   let removeElementHiderItemFromSettingsCalls: IElementIdentifier[];
+  let updateElementHiderItemToSettingsCalls:
+      Array<[IElementIdentierSetting, IElementIdentierSetting]>;
 
   function setupTemplate() {
     tableFixture = document.createElement('table');
@@ -33,13 +35,18 @@ describe('Options View: ', () => {
 
     addElementHiderItemToSettingsCalls = [];
     removeElementHiderItemFromSettingsCalls = [];
-
+    updateElementHiderItemToSettingsCalls = [];
     storage = {
       addElementHiderItemToSettings: (item: IElementIdentierSetting) => {
         addElementHiderItemToSettingsCalls.push(item);
       },
       removeElementHiderItemFromSettings: (removeItem: IElementIdentifier) => {
         removeElementHiderItemFromSettingsCalls.push(removeItem);
+      },
+      updateElementHiderItemToSettings: (
+          oldSetting: IElementIdentierSetting,
+          newSetting: IElementIdentierSetting) => {
+        updateElementHiderItemToSettingsCalls.push([oldSetting, newSetting]);
       },
     } as Storage;
   });
@@ -117,7 +124,6 @@ describe('Options View: ', () => {
       expect(addRemoveButton.disabled).to.be.false;
 
       addRemoveButton.dispatchEvent(new Event('click'));
-      expect(addElementHiderItemToSettingsCalls.length).to.equal(1);
       expect(addElementHiderItemToSettingsCalls).eqls([{
         active: true,
         identifier: {
@@ -181,6 +187,60 @@ describe('Options View: ', () => {
       expect(selectorInputs.length).to.equal(2);
       expect(addRemoveButtons.length).to.equal(2);
       expect(addRemoveButtonTexts.length).to.equal(2);
+    });
+
+    it('edits entries', () => {
+      const mockSettings = [
+        {
+          active: false,
+          identifier: {
+            regExpSrc: 'reg-exp-1',
+            selector: 'test-selector-1',
+            urlPrefix: 'test-url-prefix-1',
+          },
+        },
+        {
+          active: true,
+          identifier: {
+            regExpSrc: 'reg-exp-2',
+            selector: 'test-selector-2',
+            urlPrefix: 'test-url-prefix-2',
+          },
+        },
+      ];
+
+      view.showElementHiderList(tableFixtureBody, storage, mockSettings);
+      const activeCheckBoxes =
+          document.getElementsByClassName(view.ELEMENT_HIDER_LIST_ACTIVE_CLASS);
+
+      expect(activeCheckBoxes.length).to.equal(3);
+
+      const firstActiveCheckBox = activeCheckBoxes[0] as HTMLInputElement;
+      expect(firstActiveCheckBox.checked).to.be.false;
+
+      firstActiveCheckBox.checked = true;
+      firstActiveCheckBox.dispatchEvent(new Event('change'));
+
+      expect(updateElementHiderItemToSettingsCalls).to.eql([
+        [
+          {
+            active: true,
+            identifier: {
+              regExpSrc: 'reg-exp-1',
+              selector: 'test-selector-1',
+              urlPrefix: 'test-url-prefix-1',
+            },
+          },
+          {
+            active: true,
+            identifier: {
+              regExpSrc: 'reg-exp-1',
+              selector: 'test-selector-1',
+              urlPrefix: 'test-url-prefix-1',
+            },
+          },
+        ],
+      ]);
     });
   });
 });
