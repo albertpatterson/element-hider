@@ -10,16 +10,10 @@ describe('Options View: ', () => {
   let tableFixture: HTMLTableElement;
   let tableFixtureBody: HTMLTableSectionElement;
   let storage: Storage;
+  let addElementHiderItemToSettingsCalls: IElementIdentierSetting[];
+  let removeElementHiderItemFromSettingsCalls: IElementIdentifier[];
 
   function setupTemplate() {
-    storage = {
-      // tslint:disable-next-line: no-empty
-      addElementHiderItemToSettings: (item: IElementIdentierSetting) => {},
-      removeElementHiderItemFromSettings:
-          // tslint:disable-next-line: no-empty
-          (removeItem: IElementIdentifier) => {},
-    } as Storage;
-
     tableFixture = document.createElement('table');
 
     tableFixtureBody = document.createElement('tbody');
@@ -36,6 +30,18 @@ describe('Options View: ', () => {
 
   beforeEach(() => {
     setupTemplate();
+
+    addElementHiderItemToSettingsCalls = [];
+    removeElementHiderItemFromSettingsCalls = [];
+
+    storage = {
+      addElementHiderItemToSettings: (item: IElementIdentierSetting) => {
+        addElementHiderItemToSettingsCalls.push(item);
+      },
+      removeElementHiderItemFromSettings: (removeItem: IElementIdentifier) => {
+        removeElementHiderItemFromSettingsCalls.push(removeItem);
+      },
+    } as Storage;
   });
 
   afterEach(() => {
@@ -108,10 +114,18 @@ describe('Options View: ', () => {
       expect(selectorInput.value).to.equal('testing');
 
       selectorInput.dispatchEvent(new Event('input', {bubbles: true}));
-
       expect(addRemoveButton.disabled).to.be.false;
 
       addRemoveButton.dispatchEvent(new Event('click'));
+      expect(addElementHiderItemToSettingsCalls.length).to.equal(1);
+      expect(addElementHiderItemToSettingsCalls).eqls([{
+        active: true,
+        identifier: {
+          regExpSrc: '',
+          selector: 'testing',
+          urlPrefix: 'testing',
+        },
+      }]);
       expect(addRemoveButtonText.innerText).to.equal('-');
     });
 
@@ -157,6 +171,11 @@ describe('Options View: ', () => {
       expect(addRemoveButtonText0.innerText).to.equal('-');
 
       addRemoveButton0.dispatchEvent(new Event('click'));
+      expect(removeElementHiderItemFromSettingsCalls).to.eql([{
+        regExpSrc: 'reg-exp-1',
+        selector: 'test-selector-1',
+        urlPrefix: 'test-url-prefix-1',
+      }]);
 
       expect(urlPrefixInputs.length).to.equal(2);
       expect(selectorInputs.length).to.equal(2);
