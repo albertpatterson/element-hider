@@ -11,12 +11,29 @@
 </head>
 
 <body>
+  <h1 class="title">Hide Elements</h1>
+  <p class="description">Hide elements based on identifiers consisting of</p>
+  <ol>
+    <li>
+      <p class="description"><b>Url Prefix</b>: Elements will only be hidden on pages whos url begins with this prefix
+      </p>
+    </li>
+    <li>
+      <p class="description"><b>Selector</b>: CSS selector of elements to remove</p>
+    </li>
+    <li>
+      <p class="description"><b>RegExp</b>: Regular expression that matches the inner text of elements to hide</p>
+    </li>
+  </ol>
+
+  <label for="clear-all">Reset all Settings</label>
+  <button id="clear-all">Reset</button>
 
   <table id='element-hider-list'>
     <thead>
       <tr>
         <th id="element-hider-list-domain-header">
-          <span id="element-hider-list-domain-label">Domain</span>
+          <span id="element-hider-list-domain-label">Url Prefix</span>
         </th>
         <th id="element-hider-list-selector-header">
           <span id="element-hider-list-selector-label">Selector</span>
@@ -31,8 +48,6 @@
     </thead>
     <tbody id='element-hider-list-body'></tbody>
   </table>
-
-  <button id="clear-all">Clear All</button>
 
   <script src="options-bundle.js"></script>
 </body>
