@@ -17,8 +17,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://medium.com/*",
-        "http://medium.com/*"
+        "https://*/*",
+        "http://*/*"
       ],
       "js": [
         "injected/injected-bundle.js"

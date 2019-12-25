@@ -1,4 +1,5 @@
-// import {getElementHiderListFromSettings} from '../../shared/storage';
+import {storage} from '../../shared/storage';
+import {IElementIdentierSetting} from '../../shared/types';
 
 import * as mediumUtils from './utils';
 
@@ -12,4 +13,9 @@ function hideAllMatches() {
   //   mediumUtils.getArticles()
   //       .filter(mediumUtils.isEditorsPick)
   //       .forEach(mediumUtils.hideArticle);
+  storage.getElementHiderListFromSettings(
+      (settings: IElementIdentierSetting[]) => {
+        // tslint:disable-next-line: no-console
+        console.log('hider settings', settings);
+      });
 }

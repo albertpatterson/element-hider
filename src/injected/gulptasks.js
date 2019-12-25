@@ -15,8 +15,9 @@ module.exports = function(createTaskFactory) {
   const tsProdTask = taskFactory.tsProd(
       './', ['src/injected/main/main.ts'], buildDir, 'injected-bundle.js');
 
-  const testFiles = ['main/**/*.ts', 'test/**/*Spec.ts', 'test/**/*.html'].map(
-      f => `${__dirname}/${f}`);
+  const testFiles = [
+    'main/**/*.ts', 'test/**/*Spec.ts', 'test/**/*.html', '../shared/**/*.ts'
+  ].map(f => `${__dirname}/${f}`);
   const testTask = taskFactory.test(testFiles);
 
   const lintTask = taskFactory.lint(['src/injected/**/*.ts']);
